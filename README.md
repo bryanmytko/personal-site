@@ -1,0 +1,3 @@
+# Personal Site
+
+`cargo run`
