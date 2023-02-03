@@ -7,7 +7,7 @@ use std::{
 use rand::Rng;
 use regex::Regex;
 
-static LISTEN_ADDR: &str = "0.0.0.0:3000";
+static LISTEN_ADDR: &str = "0.0.0.0:5000";
 
 fn main() {
     let listener = TcpListener::bind(LISTEN_ADDR).unwrap();
