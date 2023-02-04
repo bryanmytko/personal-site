@@ -15,8 +15,8 @@ fn main() {
         None => "5000".to_string()
     };
 
-    let addr: String = format!("0.0.0.0:{}", port);
-    let listener = TcpListener::bind(&addr).unwrap();
+    let host: String = format!("0.0.0.0:{}", port);
+    let listener = TcpListener::bind(&host).unwrap();
 
     for stream in listener.incoming() {
         let stream  = stream.unwrap();
