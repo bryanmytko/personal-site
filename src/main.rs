@@ -15,13 +15,20 @@ fn main() {
     for stream in listener.incoming() {
         let stream  = stream.unwrap();
 
-        handle_connection(stream);
+        route(stream);
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+fn route(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
+    let verb: Vec<&str> = request_line.split_whitespace().collect();
+    println!("verb {}", verb[0]);
+    
+    handle_connection(stream, &request_line);
+}
+
+fn handle_connection(mut stream: TcpStream, request_line: &str) {
     let image_regex = Regex::new(r"GET.*\.(png|gif|jpg|jpeg).*").unwrap();
 
     if request_line == "GET / HTTP/1.1" {
