@@ -1,16 +1,22 @@
 use std::{
+    env,
     fs,
     io::{prelude::*, BufReader },
     net::{TcpListener, TcpStream},
 };
-
+use dotenv;
 use rand::Rng;
 use regex::Regex;
 
-static LISTEN_ADDR: &str = "0.0.0.0:5000";
-
 fn main() {
-    let listener = TcpListener::bind(LISTEN_ADDR).unwrap();
+    dotenv::dotenv().ok();
+    let port: String = match env::var_os("PORT") {
+        Some(val) => val.into_string().unwrap(),
+        None => "5000".to_string()
+    };
+
+    let addr: String = format!("0.0.0.0:{}", port);
+    let listener = TcpListener::bind(&addr).unwrap();
 
     for stream in listener.incoming() {
         let stream  = stream.unwrap();
@@ -23,6 +29,7 @@ fn route(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
     let verb: Vec<&str> = request_line.split_whitespace().collect();
+
     println!("verb {}", verb[0]);
     
     handle_connection(stream, &request_line);
