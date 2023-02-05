@@ -28,17 +28,24 @@ fn main() {
 fn route(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
-    let verb: Vec<&str> = request_line.split_whitespace().collect();
+    let request_split: Vec<&str> = request_line.split_whitespace().collect();
 
-    println!("verb {}", verb[0]);
-    
-    handle_connection(stream, &request_line);
+    let verb = request_split[0];
+    let path = request_split[1];
+
+    match verb {
+        "GET" => get(stream, path),
+        _ => not_found(stream)
+    }
 }
 
-fn handle_connection(mut stream: TcpStream, request_line: &str) {
-    let image_regex = Regex::new(r"GET.*\.(png|gif|jpg|jpeg).*").unwrap();
+fn get(mut stream: TcpStream, path: &str) {
+    let asset_path: &str = "assets";
+    let image_regex = Regex::new(r".*\.(png|gif|jpg|jpeg).*").unwrap();
+    let path_split: Vec<&str> = path.split("/").collect();
 
-    if request_line == "GET / HTTP/1.1" {
+    /* Need to implement some kind of actual routes to check here */
+    if path == "/" {
         let status_line = "HTTP/1.1 200 OK";
         let contents = fs::read_to_string("html/index.html").unwrap();
         let length = contents.len();
@@ -47,31 +54,47 @@ fn handle_connection(mut stream: TcpStream, request_line: &str) {
             "{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
 
         stream.write_all(response.as_bytes()).unwrap();
-    } else if image_regex.is_match(&request_line) {
-        let logo = random_logo();
-        let file_path = format!("assets/{}", logo);
-        let contents = fs::read(file_path).unwrap();
-
-        let status_line = "HTTP/1.1 200 OK";
-
-        let response = format!("{}\r\nContent-Length: {}\r\n\r\n",
-            status_line,
-            contents.len()
-        );
-
-        // @TODO
-        // let headers = [
-        //     "HTTP/1.1 200 OK",
-        //     "Content-type: image/jpeg",
-        //     "Transfer-Encoding: chunked",
-        //     "\r\n"
-        // ];
-        
-        stream.write(response.as_bytes()).unwrap();
-        stream.write(&contents).unwrap();
+    } else if path_split[1] == asset_path && image_regex.is_match(path) {
+        asset(stream, path);
+    } else {
+        not_found(stream);
     }
 }
 
+fn not_found(mut stream: TcpStream) {
+    let page = fs::read_to_string("html/404.html").unwrap();
+    let status_line = "HTTP/1.1 400 NOT FOUND";
+    let length = page.len();
+    let response = format!(
+        "{status_line}\r\nContent-Length: {length}\r\n\r\n{page}");
+
+    stream.write_all(response.as_bytes()).unwrap();
+}
+
+fn asset(mut stream: TcpStream, _path: &str) {
+    let logo = random_logo();
+    let file_path = format!("assets/{}", logo);
+    let contents = fs::read(file_path).unwrap();
+    let status_line = "HTTP/1.1 200 OK";
+
+    // @TODO
+    // let headers = [
+    //     "HTTP/1.1 200 OK",
+    //     "Content-type: image/jpeg",
+    //     "Transfer-Encoding: chunked",
+    //     "\r\n"
+    // ];
+
+    let response = format!("{}\r\nContent-Length: {}\r\n\r\n",
+        status_line,
+        contents.len()
+    );
+
+    stream.write(response.as_bytes()).unwrap();
+    stream.write(&contents).unwrap();
+}
+
+/* Move to front-end once this is supported */
 fn random_logo() -> &'static str {
     let logos = [
         "wordart1.png",
