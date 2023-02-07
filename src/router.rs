@@ -5,17 +5,21 @@ use std::{
 };
 use rand::Rng;
 use regex::Regex;
+use urlencoding::encode;
 
 pub fn route(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
     let request_line = buf_reader.lines().next().unwrap().unwrap();
     let request_split: Vec<&str> = request_line.split_whitespace().collect();
+    let params_split: Vec<&str> = request_line.split(['?', ' '].as_ref()).collect();
+    let params: Vec<&str> = params_split[2].split('&').collect();
 
     let verb = request_split[0];
     let path = request_split[1];
+    println!("encoded path:{}", params[0]);
 
     match verb {
-        "GET" => get(stream, path),
+        "GET" => get(stream, &path),
         _ => not_found(stream)
     }
 }
