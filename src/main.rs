@@ -1,7 +1,7 @@
 use std::{ env, net::TcpListener };
 use dotenv;
 
-mod router;
+mod http;
 
 fn main() {
     dotenv::dotenv().ok();
@@ -16,6 +16,6 @@ fn main() {
     for stream in listener.incoming() {
         let stream  = stream.unwrap();
 
-        router::route(stream);
+        http::handle_request(stream);
     }
 }
