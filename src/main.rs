@@ -12,10 +12,11 @@ fn main() {
     };
     let host: String = format!("0.0.0.0:{}", port);
     let listener = TcpListener::bind(&host).unwrap();
+    let pool = ThreadPool::new(4);
 
     for stream in listener.incoming() {
         let stream  = stream.unwrap();
 
-        http::handle_request(stream);
+        pool.execute(|| { http::handle_request(stream) });
     }
 }
