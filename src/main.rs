@@ -2,6 +2,9 @@ use std::{ env, net::TcpListener };
 use dotenv;
 
 mod http;
+mod lib;
+
+use personal_website::ThreadPool;
 
 fn main() {
     dotenv::dotenv().ok();
