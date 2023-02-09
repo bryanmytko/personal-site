@@ -2,7 +2,6 @@ use std::{ env, net::TcpListener };
 use dotenv;
 
 mod http;
-mod lib;
 
 use personal_website::ThreadPool;
 
@@ -22,4 +21,6 @@ fn main() {
 
         pool.execute(|| { http::handle_request(stream) });
     }
+
+    println!("Shutting down...");
 }
