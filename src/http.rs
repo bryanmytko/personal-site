@@ -17,8 +17,10 @@ pub fn handle_request(mut stream: TcpStream) {
     let path = request_split[1];
     let params = parse_params(&request_split[1]);
 
+    println!("request: {}", request);
     match method {
         "GET" => get(stream, &path, params),
+        "POST" => post(stream, &path),
         _ => not_found(stream)
     }
 }
@@ -63,6 +65,10 @@ fn get(mut stream: TcpStream, path: &str, _params: HashMap<String, String>) {
     } else {
         not_found(stream);
     }
+}
+
+fn post(mut stream: TcpStream, path: &str) {
+    println!("post!");
 }
 
 fn not_found(mut stream: TcpStream) {
