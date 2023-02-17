@@ -10,6 +10,7 @@ use urlencoding::encode;
 
 pub fn handle_request(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
+
     let request = buf_reader.lines().next().unwrap().unwrap();
     let request_split: Vec<&str> = request.split_whitespace().collect();
 
@@ -67,8 +68,8 @@ fn get(mut stream: TcpStream, path: &str, _params: HashMap<String, String>) {
     }
 }
 
-fn post(mut stream: TcpStream, path: &str) {
-    println!("post!");
+fn post(mut _stream: TcpStream, path: &str) {
+    println!("TODO: POST request: {}", path);
 }
 
 fn not_found(mut stream: TcpStream) {
