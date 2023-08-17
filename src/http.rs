@@ -37,6 +37,8 @@ pub fn parse_params(request: &str) -> HashMap<String, String> {
     for param in params_split[1].split('&') {
         let param_split: Vec<&str> = param.split("=").collect();
 
+        if param_split.len() != 2 { break }
+
         params.insert(
             String::from(encode(param_split[0])),
             String::from(encode(param_split[1]))
